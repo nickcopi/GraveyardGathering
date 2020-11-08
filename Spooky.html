@@ -1,0 +1,321 @@
+<link href='http://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
+<style>
+
+.int1 {
+    width: 500px;
+    height: 50px;
+left:500px;
+    background-color: orange;
+    position: absolute;
+opacity:0;
+    -webkit-animation-name: example; /* Chrome, Safari, Opera */
+    -webkit-animation-duration: 4s; /* Chrome, Safari, Opera */
+    animation-name: intro1;
+    animation-duration: 4s;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes intro1 {
+    50%   {left:500px;opacity:0;}
+75%{opacity:1;}
+    100% {left:-500px;opacity:0;}
+}
+
+/* Standard syntax */
+@keyframes intro1 {
+     50%   {left:500px;opacity:0;}
+75%{opacity:1;}
+    100% {left:-500px;opacity:0;}
+}
+
+.int2 {
+    width: 500px;
+left:-500px;
+    height: 50px;
+    background-color: orange;
+    position: absolute;
+    -webkit-animation-name: example; /* Chrome, Safari, Opera */
+    -webkit-animation-duration: 4s; /* Chrome, Safari, Opera */
+    animation-name: intro2;
+    animation-duration: 4s;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes intro2 {
+    50%   {left:-500px;opacity:0;}
+75%{opacity:1;}
+    100% {left:500px;opacity:0;}
+}
+
+/* Standard syntax */
+@keyframes intro2 {
+ 50%   {left:-500px;opacity:0;}
+75%{opacity:1;}
+    100% {left:500px;opacity:0;}
+}
+</style>
+<canvas id="game" style="position:absolute;top:0px;left:0px;" height="500" width="500">Boo! Your browser doesn't support this. Honestly I don't think this applies to anyone anymore but we still put it here because we can.</canvas>
+<div style="position:absolute;top:100px;left:180px;border-style:solid;border-radius:100px;height:100px;width:100px;cursor:pointer;border-color:white;background-color:white;opacity:0" onclick="spawn();"></div>
+<img src="audio-on2.png" style="position:absolute;top:5px;left:465px;cursor:pointer" onclick="if(muted){muted=false;this.src='audio-on2.png'}else{muted=true;this.src='audio-off2.png'}">
+<div id="intro">
+<div style="position:absolute;top:32px;left:10px;color:white;font-family:comic sans ms;font-size:50px;">Graveyard Gathering</div>
+<div style="position:absolute;top:200px;left:110px;color:white;font-family:comic sans ms;font-size:30px;">Click on the moon.</div>
+</div>
+<div id="introman" style="overflow:hidden;position:absolute;top:0px;left:0px;background-color:black;height:500px;width:500px;"><br><br><br><br><br><br>
+<div style="top:200px;" class="int2"></div><div style="top:250px;" class="int1"></div>
+<a target="_blank" href=""><p id="demo" style="display:none;position:absolute;top:130px;cursor:pointer;color:white;font-family:Indie Flower;font-size:72px;">&nbspNicholas Copi</p></a>
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script>
+//Graveyard Gathering
+var eyex=0
+var eyey=410
+var eyeV=[]
+var eyeCount=0
+var clicks=0
+var top=200
+var canvas=document.getElementById('game')
+var ctx=canvas.getContext('2d')
+var ghosts=[]
+var muted=false
+var gh=0
+var lg=0
+var tough=0
+var hands=[]
+var arrows=[]
+highShriek=new Audio("high shriek.m4a")
+hiss=new Audio("hiss.m4a")
+mscream=new Audio("muffled scream.m4a")
+var bg=new Image()
+bg.src="spookybg.png"
+var ghost=new Image()
+ghost.src="ghost2.png"
+var dirt=new Image()
+dirt.src="gravedirt.png"
+var graves=new Image()
+graves.src="gravescrossed.png"
+var hand=new Image()
+hand.src="hand.png"
+var moon=new Image()
+moon.src="moon2.png"
+var overlay=new Image()
+overlay.src="lessnoisy.png"
+var eyes=new Image()
+eyes.src="eyes.png"
+var light=new Image()
+light.src="test thing.png"
+ function game(){
+     setInterval(function(){
+     tough++
+     if(lg>0){lg-=.002}
+     if(0>lg){lg=0}
+     render()
+     moveGhosts()
+     moveHands()
+     moveArrows()
+     audio()
+     },16.666666)
+     
+ }
+ 
+
+function startTimee(){
+$('#demo').fadeIn(2000,function(){
+$('#demo').fadeOut(2000)
+})
+var start=setInterval(function(){document.getElementById('introman').style.display="none";clearInterval(start)},4000)
+}
+
+
+
+ function audio(){
+if(tough/600==Math.round(tough/600)&&muted==false){
+switch(Math.floor(Math.random()*3)+1){
+case 1:
+hiss.play()
+break;
+case 2:
+mscream.play()
+break;
+case 3:
+highShriek.play()
+break;
+}
+}
+}
+    function spawn(){
+if(clicks==0){
+$('#intro').fadeOut('slow')
+ghosts[gh]=new Ghost();gh++//new ghost
+}
+        clicks++
+	if(lg<.5){lg+=.05}
+        if(Math.round(clicks/10)==clicks/10){
+            ghosts[gh]=new Ghost();gh++//new ghost
+        }
+        if(Math.round(clicks/50)==clicks/50){
+            hands.push(new Hand())
+        }
+        if(Math.round(clicks/100)==clicks/100){
+          if(eyeCount<16){eyeCount++}  //new eyes
+	  if(eyeCount>5&&eyeCount<11){
+	  eyeV.push(Math.floor(Math.random()*220))
+	  } else {
+	  eyeV.push(Math.floor(Math.random()*410))
+	  }
+          }
+	  if(Math.round(clicks/350)==clicks/350){
+	  arrows.push(new Arrow())//new arrow
+	  }
+    }
+    
+    function moveGhosts(){
+        for(i=0;i<gh;i++){
+            if(ghosts[i].movingRight){
+                ghosts[i].x+=ghosts[i].speed
+            }
+            if(ghosts[i].movingLeft){
+                ghosts[i].x-=ghosts[i].speed
+            }
+            if(ghosts[i].movingUp){
+                ghosts[i].y-=ghosts[i].speed
+            }
+            if(ghosts[i].movingDown){
+                ghosts[i].y+=ghosts[i].speed
+            }
+            if(ghosts[i].x>500-30){
+                ghosts[i].movingLeft=true
+                ghosts[i].movingRight=false
+            }
+            if(ghosts[i].x<0){
+                ghosts[i].movingLeft=false
+                ghosts[i].movingRight=true
+            }
+            if(ghosts[i].y<0){
+                ghosts[i].movingDown=true
+                ghosts[i].movingUp=false
+            }
+            if(ghosts[i].y>500){
+                ghosts[i].movingUp=true
+                ghosts[i].movingDown=false
+            }
+            
+        }
+    }
+    
+     
+    function moveHands(){
+        for(i=0;i<hands.length;i++){
+            if(hands[i].movingUp){
+                hands[i].y-=hands[i].speed
+            }
+            if(hands[i].movingDown){
+                hands[i].y+=hands[i].speed
+            }
+            if(hands[i].y<450){
+                hands[i].movingDown=true
+                hands[i].movingUp=false
+		hands[i].speed=.5
+            }
+            if(hands[i].y>500){
+                hands[i].movingUp=true
+                hands[i].movingDown=false
+		hands[i].x=Math.floor(Math.random()*470)
+		hands[i].speed=1
+            }
+            
+        }
+    }
+
+   function moveArrows(){
+        for(i=0;i<arrows.length;i++){
+            if(arrows[i].movingRight){
+                arrows[i].x+=arrows[i].speed
+            }
+            if(arrows[i].movingLeft){
+                arrows[i].x-=arrows[i].speed
+            }
+            if(arrows[i].x<0-100){
+            arrows[i].image.src="bloody skullflip.png"
+	    arrows[i].y=Math.floor(Math.random()*430)
+	    arrows[i].movingLeft=false
+	    arrows[i].movingRight=true
+            }
+            if(arrows[i].x>600){
+	    arrows[i].image.src="bloody skull.png"
+	    arrows[i].y=Math.floor(Math.random()*430)
+	    arrows[i].movingLeft=true
+	    arrows[i].movingRight=false
+	    }
+        }
+    }
+
+function Ghost(){
+this.x=Math.floor(Math.random()*500)
+this.y=500
+this.speed=3
+this.movingUp=true
+this.movingDown=false
+this.movingLeft=true
+this.movingRight=false
+}
+
+function Hand(){
+this.x=250//random
+this.y=500
+this.speed=3
+this.movingUp=true
+this.movingDown=false
+}
+function Arrow(){
+this.x=500
+this.y=Math.floor(Math.random()*430)
+this.speed=7
+this.movingLeft=true
+this.movingRight=false
+this.image=new Image()
+this.image.src="bloody skull.png"
+}
+function render(){
+ctx.fillStyle="black"
+ctx.fillRect(0,0,500,500)
+//ctx.drawImage(bg,0,0)
+ctx.drawImage(graves,0,430)
+ctx.globalAlpha=lg
+ctx.drawImage(light,-20,20)
+ctx.globalAlpha=1
+ctx.drawImage(moon,180,100)
+if(clicks>700){
+ctx.fillStyle="white"
+ctx.font = "60px Comic Sans MS";
+ctx.fillText("Happy Halloween!",5,320);
+}
+for(i=0;i<eyeCount;i++){
+ctx.drawImage(eyes,eyex+(i*30),eyey-(eyeV[i]),30, 15)
+}
+for(i=0;i<arrows.length;i++){
+ctx.drawImage(arrows[i].image,arrows[i].x,arrows[i].y)
+}
+ctx.globalAlpha=.4
+for(i=0;i<gh;i++){
+ctx.fillStyle="white"
+ctx.drawImage(ghost,ghosts[i].x,ghosts[i].y)
+}
+ctx.globalAlpha=1
+for(i=0;i<hands.length;i++){
+ctx.fillStyle="brown"
+ctx.drawImage(hand,hands[i].x,hands[i].y)
+}
+
+ctx.drawImage(dirt,0,480)
+//ctx.drawImage(overlay,0,0)
+
+}
+window.onload=function(){
+    game()
+    render()
+startTimee()
+
+}
+</script>
