@@ -3,8 +3,8 @@
 	"tags":["Game"],
 	"description":"A Halloween themed clicker aesthetic game inspired by the moon being pretty in the morning.",
 	"embed":{
-		"width":504,
-		"height":504,
+		"width":500,
+		"height":500,
 		"file":"Spooky.html"
 	},
 	"date":"October 2015"
